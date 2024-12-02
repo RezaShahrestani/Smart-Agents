@@ -3,82 +3,29 @@ using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.ChatCompletion;
 using System;
 using System.Text;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 using HelloPlugin;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using Microsoft.SemanticKernel.Plugins.Core;
 using AIAgents_SemanticKernel;
-//using Shared;
+using Shared;
 
 #pragma warning disable SKEXP0001
 #pragma warning disable SKEXP0110
 #pragma warning disable SKEXP0050
 #pragma warning disable SKEXP0070
 
-public class RateLimitHandler
-{
-    // Existing RateLimitHandler implementation remains the same
-    private DateTime? _nextAllowedRequest;
-    private readonly object _lockObject = new object();
 
-    public async Task<T> ExecuteWithRateLimitHandling<T>(Func<Task<T>> operation)
-    {
-        while (true)
-        {
-            lock (_lockObject)
-            {
-                if (_nextAllowedRequest == null || DateTime.Now >= _nextAllowedRequest)
-                {
-                    _nextAllowedRequest = null;
-                }
-            }
-
-            if (_nextAllowedRequest == null)
-            {
-                try
-                {
-                    return await operation();
-                }
-                catch (Exception ex)
-                {
-                    var match = Regex.Match(ex.Message, @"retry after (\d+) seconds");
-                    if (match.Success)
-                    {
-                        int waitSeconds = int.Parse(match.Groups[1].Value);
-                        lock (_lockObject)
-                        {
-                            _nextAllowedRequest = DateTime.Now.AddSeconds(waitSeconds);
-                        }
-                        Console.WriteLine($"Rate limited. Waiting {waitSeconds} seconds.");
-                        await Task.Delay(TimeSpan.FromSeconds(waitSeconds));
-                    }
-                    else
-                    {
-                        throw; // Re-throw if it's not a rate limit error
-                    }
-                }
-            }
-            else
-            {
-                var waitTime = _nextAllowedRequest.Value - DateTime.Now;
-                if (waitTime > TimeSpan.Zero)
-                {
-                    Console.WriteLine($"Waiting {waitTime.TotalSeconds} seconds before next request.");
-                    await Task.Delay(waitTime);
-                }
-            }
-        }
-    }
-}
 
 class Program
 {
     const string azureOpenAiEndpoint = "https://reza-openai-agents.openai.azure.com/";
-    const string azureOpenAiApiKey = ""; // Todo - Key vault
+    const string azureOpenAiApiKey = "a"; // Todo - Key vault
     const string modelDeploymentName = "gpt-4o-mini";
 
+    Secrets secrets = SecretManager.GetSecrets();
+    //var builder = Kernel.CreateBuilder();
+    //builder.AddAzureOpenAIChatCompletion("gpt-4o-mini", secrets.AzureOpenAiEndpoint, secrets.AzureOpenAiApiKey);
     static async Task Main()
     {
         // Initialize Kernel

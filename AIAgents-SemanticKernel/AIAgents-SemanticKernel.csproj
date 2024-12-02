@@ -14,4 +14,8 @@
     <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.31.0-alpha" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ClassLibrary1\Shared.csproj" />
+  </ItemGroup>
+
 </Project>
