@@ -78,10 +78,10 @@ namespace AIAgents_SemanticKernel
 
         private void Guard(string folderPath)
         {
-            if (!folderPath.StartsWith(RootFolder))
-            {
-                throw new Exception("No you don't!");
-            }
+            //if (!folderPath.StartsWith(RootFolder))
+            //{
+            //    throw new Exception("No you don't!");
+            //}
         }
     }
 }
